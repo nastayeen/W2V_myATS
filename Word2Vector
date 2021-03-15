@@ -1,0 +1,49 @@
+#import packages
+import pandas as pd
+import gensim
+from gensim.models import Word2Vec,Phrases
+from nltk import word_tokenize
+
+'''
+
+Read the job description column from CSV file
+Using pandas
+
+'''
+cols_list=["Job Description"]
+df=pd.read_csv("job_filtered.csv", usecols=cols_list, encoding='windows-1251')
+df_list=df["Job Description"].values.tolist()
+df2=df_list[0:10]
+
+'''********** DATA PREPARATION/PRE-PROCESSING- CLEANING THE DATA *********'''
+
+tokens=gensim.utils.simple_preprocess(str(df2))
+ds=set(tokens)
+unique_tokens=list(ds)
+# sentences = [nltk.word_tokenize(sent) for sent in nltk.sent_tokenize(unique_tokens)]
+'''************************* SETTING THE HYPER-PARAMETERS ***************'''
+'''
+window : context word +- target word
+size : dimensions of word embeddings, also refer to 'size' of hidden layer
+iter : number of training epochs/iterations
+workers : Number of CPU Threads to use at once for faster training
+min_count : Default is 5. It will remove the words who's similar count is less than 10
+sg : Default '0' for CBOW and '1' for Skip Gram 
+'''
+# tokenized_text = word_tokenize(str(unique_tokens))
+# model = word2vec.Word2Vec(tokenized_text  , size=100)   
+model = gensim.models.Word2Vec(unique_tokens, min_count=1, size= 50, workers=3, window =3, sg = 1)    
+model.save("word2vec_job.bin")
+model_embedding=gensim.models.Word2Vec.load("word2vec_job.bin")
+
+'''Size of Vocabulary'''
+len(model.wv.vocab.keys())
+'''To view the vocabulary'''
+model.wv.vocab 
+
+'''***** COMPUTE SIMILARITY *****'''
+# model.similarity()
+
+model.wv['p']  
+
+model.wv.similarity('p', 't')
